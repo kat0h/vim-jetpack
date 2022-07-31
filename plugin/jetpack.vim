@@ -167,25 +167,25 @@ def! s:show_progress(title: string)
   redraw
 enddef
 
-function! s:show_result() abort
-  let buf = bufnr('JetpackStatus')
-  call deletebufline(buf, 1, '$')
-  call setbufline(buf, 1, 'Result')
-  call appendbufline(buf, '$', s:make_progressbar(100.0))
+def! s:show_result()
+  var buf = bufnr('JetpackStatus')
+  deletebufline(buf, 1, '$')
+  setbufline(buf, 1, 'Result')
+  appendbufline(buf, '$', s:make_progressbar(100.0))
   for [pkg_name, pkg] in items(s:packages)
     if index(pkg.status, s:status.installed) >= 0
-      call appendbufline(buf, '$', printf('installed %s', pkg_name))
+      appendbufline(buf, '$', printf('installed %s', pkg_name))
     elseif index(pkg.status, s:status.updated) >= 0
-      call appendbufline(buf, '$', printf('updated %s', pkg_name))
+      appendbufline(buf, '$', printf('updated %s', pkg_name))
     else
-      call appendbufline(buf, '$', printf('skipped %s', pkg_name))
+      appendbufline(buf, '$', printf('skipped %s', pkg_name))
     endif
-    let output = substitute(pkg.output, '[\x0]', '', 'g')
-    let output = substitute(output, '^From.\{-}\zs\(\r\n\|\r\|\n\)\s*', '/compare/', '')
-    call appendbufline(buf, '$', output)
+    var output = substitute(pkg.output, '[\x0]', '', 'g')
+    output = substitute(output, '^From.\{-}\zs\(\r\n\|\r\|\n\)\s*', '/compare/', '')
+    appendbufline(buf, '$', output)
   endfor
   redraw
-endfunction
+enddef
 
 function! s:clean_plugins() abort
   if g:jetpack_download_method !=# 'git'
