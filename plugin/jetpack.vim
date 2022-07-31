@@ -142,9 +142,9 @@ def! s:copy_dir(from: string, to: string)
   endif
 enddef
 
-function! s:initialize_buffer() abort
-  execute 'silent! bdelete! ' . bufnr('JetpackStatus')
-  40vnew +setlocal\ buftype=nofile\ nobuflisted\ nonumber\ norelativenumber\ signcolumn=no\ noswapfile\ nowrap JetpackStatus
+def! s:initialize_buffer()
+  execute 'silent! bdelete! ' .. bufnr('JetpackStatus')
+  :40vnew +setlocal\ buftype=nofile\ nobuflisted\ nonumber\ norelativenumber\ signcolumn=no\ noswapfile\ nowrap JetpackStatus
   syntax clear
   syntax match jetpackProgress /^[a-z]*ing/
   syntax match jetpackComplete /^[a-z]*ed/
@@ -153,7 +153,7 @@ function! s:initialize_buffer() abort
   highlight def link jetpackComplete DiffAdd
   highlight def link jetpackSkipped DiffDelete
   redraw
-endfunction
+enddef
 
 function! s:show_progress(title) abort
   let buf = bufnr('JetpackStatus')
