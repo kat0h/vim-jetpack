@@ -47,6 +47,8 @@ let g:jetpack_copy_method =
   " hardlink : fs_link (nvim only)
 
 let s:packages = get(s:, 'packages', {})
+let s:optdir = ''
+let s:srcdir = ''
 
 let s:status = {
 \   'pending': 'pending',
@@ -411,16 +413,17 @@ def! s:postupdate_plugins()
   endfor
 enddef
 
-def! jetpack#sync()
-  s:initialize_buffer()
-  s:clean_plugins()
-  s:download_plugins()
-  s:switch_plugins()
-  s:merge_plugins()
-  s:show_result()
-  s:postupdate_plugins()
-enddef
+function! jetpack#sync()
+  call s:initialize_buffer()
+  call s:clean_plugins()
+  call s:download_plugins()
+  call s:switch_plugins()
+  call s:merge_plugins()
+  call s:show_result()
+  call s:postupdate_plugins()
+endfunction
 
+" TODO
 function! jetpack#add(plugin, ...) abort
   let opts = a:0 > 0 ? a:1 : {}
   let url = (a:plugin !~# ':' ? 'https://github.com/' : '') . a:plugin
@@ -448,23 +451,23 @@ function! jetpack#add(plugin, ...) abort
   let s:packages[get(opts, 'as', fnamemodify(a:plugin, ':t'))] = pkg
 endfunction
 
-function! jetpack#begin(...) abort
-  let s:packages = {}
-  if a:0 != 0
-    let s:home = expand(a:1)
-    execute 'set packpath^=' . s:home
-    execute 'set runtimepath^=' . s:home
+def! jetpack#begin(...a_home: list<string>)
+  s:packages = {}
+  if a_home->len() != 0
+    s:home = expand(a_home[0])
+    execute 'set packpath^=' .. s:home
+    execute 'set runtimepath^=' .. s:home
   elseif has('nvim')
-    let s:home = stdpath('data') . '/' . 'site'
+    s:home = stdpath('data') .. '/' .. 'site'
   elseif has('win32')
-    let s:home = expand('~/vimfiles')
+    s:home = expand('~/vimfiles')
   else
-    let s:home = expand('~/.vim')
+    s:home = expand('~/.vim')
   endif
-  let s:optdir = s:home . '/pack/jetpack/opt'
-  let s:srcdir = s:home . '/pack/jetpack/src'
+  s:optdir = s:home .. '/pack/jetpack/opt'
+  s:srcdir = s:home .. '/pack/jetpack/src'
   command! -nargs=+ -bar Jetpack call jetpack#add(<args>)
-endfunction
+enddef
 
 " Original: https://github.com/junegunn/vim-plug/blob/e3001/plug.vim#L683-L693
 "  License: MIT, https://raw.githubusercontent.com/junegunn/vim-plug/e3001/LICENSE
@@ -556,9 +559,9 @@ function! jetpack#names() abort
   return keys(s:packages)
 endfunction
 
-function! jetpack#get(name) abort
-  return get(s:packages, a:name, {})
-endfunction
+def! jetpack#get(name: string): string
+  return get(s:packages, name, {})
+enddef
 
 " if !has('nvim') | finish | endif
 " lua<<========================================
