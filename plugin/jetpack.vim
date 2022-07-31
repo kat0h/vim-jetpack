@@ -60,9 +60,9 @@ let s:status = {
 \   'copied': 'copied'
 \ }
 
-function! s:list_files(path) abort
-  return filter(glob(a:path . '/**/*', '', 1), { _, val -> !isdirectory(val)})
-endfunction
+def! s:list_files(path: string): list<string>
+  return filter(glob(path..'/**/*', '', 1), (_, val) => (!isdirectory(val)))
+enddef
 
 function! s:check_ignorable(filename) abort
   return filter(copy(g:jetpack_ignore_patterns), { _, val -> a:filename =~# glob2regpat(val) }) != []
