@@ -1,6 +1,6 @@
 # vim9-jetpack
 
-**Vim9 script port of vim-jetpack**
+**Vim9 script port of vim-jetpack**  
 **only works in Vim9**
 
 The **lightning-fast** minimalist plugin manager for Vim/ Neovim. vim-jetpack is
