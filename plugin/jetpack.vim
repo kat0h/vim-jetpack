@@ -72,12 +72,13 @@ def! s:make_progressbar(n: float): string
   return '[' .. join(map(range(0, 100, 3), (_, v) => (v < n ? '=' : ' ')), '') .. ']'
 enddef
 
-function! s:jobstatus(job) abort
-  if has('nvim')
-    return jobwait([a:job], 0)[0] == -1 ? 'run' : 'dead'
-  endif
-  return job_status(a:job)
-endfunction
+def! s:jobstatus(job: job): string
+  # neovim does't support vim9 script but I left this statement
+  # if has('nvim')
+  #   return jobwait([a:job], 0)[0] == -1 ? 'run' : 'dead'
+  # endif
+  return job_status(job)
+enddef
 
 function! s:jobcount(jobs) abort
   return len(filter(copy(a:jobs), { _, val -> s:jobstatus(val) ==# 'run' }))
