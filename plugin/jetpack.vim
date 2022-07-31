@@ -260,6 +260,7 @@ def! s:make_download_cmd(pkg: dict<any>): list<string>
   endif
 enddef
 
+" TODO
 function! s:download_plugins() abort
   let jobs = []
   for [pkg_name, pkg] in items(s:packages)
@@ -290,24 +291,24 @@ function! s:download_plugins() abort
   call s:jobwait(jobs, 0)
 endfunction
 
-function! s:switch_plugins() abort
+def! s:switch_plugins()
   if g:jetpack_download_method !=# 'git'
     return
   endif
   for [pkg_name, pkg] in items(s:packages)
-    call add(pkg.status, s:status.pending)
+    add(pkg.status, s:status.pending)
   endfor
   for [pkg_name, pkg] in items(s:packages)
-    call s:show_progress('Switch Plugins')
+    s:show_progress('Switch Plugins')
     if !isdirectory(pkg.path)
-      call add(pkg.status, s:status.skipped)
+      add(pkg.status, s:status.skipped)
       continue
     else
-      call add(pkg.status, s:status.switched)
+      add(pkg.status, s:status.switched)
     endif
-    call system(printf('git -C %s checkout %s', pkg.path, pkg.commit))
+    system(printf('git -C %s checkout %s', pkg.path, pkg.commit))
   endfor
-endfunction
+enddef
 
 function! s:merge_plugins() abort
   for [pkg_name, pkg] in items(s:packages)
