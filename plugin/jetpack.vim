@@ -253,6 +253,8 @@ def! s:make_download_cmd(pkg: dict<any>): list<string>
     elseif has('win32')
       return ['cmd.exe', '/c' .. download_cmd .. ' | ' .. extract_cmd]
     else
+      # work around
+      # Vim9 script can't define function which returns any or void
       return []
     endif
   endif
