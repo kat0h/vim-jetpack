@@ -411,15 +411,15 @@ def! s:postupdate_plugins()
   endfor
 enddef
 
-function! jetpack#sync() abort
-  call s:initialize_buffer()
-  call s:clean_plugins()
-  call s:download_plugins()
-  call s:switch_plugins()
-  call s:merge_plugins()
-  call s:show_result()
-  call s:postupdate_plugins()
-endfunction
+def! jetpack#sync()
+  s:initialize_buffer()
+  s:clean_plugins()
+  s:download_plugins()
+  s:switch_plugins()
+  s:merge_plugins()
+  s:show_result()
+  s:postupdate_plugins()
+enddef
 
 function! jetpack#add(plugin, ...) abort
   let opts = a:0 > 0 ? a:1 : {}
@@ -560,43 +560,43 @@ function! jetpack#get(name) abort
   return get(s:packages, a:name, {})
 endfunction
 
-if !has('nvim') | finish | endif
-lua<<========================================
-local M = {}
-
-for _, name in pairs({'begin', 'end', 'add', 'names', 'get', 'tap', 'sync'}) do
-  M[name] = function(...) return vim.fn['jetpack#' .. name](...) end
-end
-
-local function use(plugin)
-  if (type(plugin) == 'string') then
-    vim.fn['jetpack#add'](plugin)
-  else
-    local name = plugin[1]
-    plugin[1] = nil
-    if vim.fn.type(plugin) == vim.v.t_list then
-      vim.fn['jetpack#add'](name)
-    else
-      vim.fn['jetpack#add'](name, plugin)
-    end
-  end
-end
-
-M.startup = function(config)
-  vim.fn['jetpack#begin']()
-  config(use)
-  vim.fn['jetpack#end']()
-end
-
-M.setup = function(config)
-  vim.fn['jetpack#begin']()
-  for _, plugin in pairs(config) do
-    use(plugin)
-  end
-  vim.fn['jetpack#end']()
-end
-
-package.preload['jetpack'] = function()
-  return M
-end
-========================================
+" if !has('nvim') | finish | endif
+" lua<<========================================
+" local M = {}
+" 
+" for _, name in pairs({'begin', 'end', 'add', 'names', 'get', 'tap', 'sync'}) do
+"   M[name] = function(...) return vim.fn['jetpack#' .. name](...) end
+" end
+" 
+" local function use(plugin)
+"   if (type(plugin) == 'string') then
+"     vim.fn['jetpack#add'](plugin)
+"   else
+"     local name = plugin[1]
+"     plugin[1] = nil
+"     if vim.fn.type(plugin) == vim.v.t_list then
+"       vim.fn['jetpack#add'](name)
+"     else
+"       vim.fn['jetpack#add'](name, plugin)
+"     end
+"   end
+" end
+" 
+" M.startup = function(config)
+"   vim.fn['jetpack#begin']()
+"   config(use)
+"   vim.fn['jetpack#end']()
+" end
+" 
+" M.setup = function(config)
+"   vim.fn['jetpack#begin']()
+"   for _, plugin in pairs(config) do
+"     use(plugin)
+"   end
+"   vim.fn['jetpack#end']()
+" end
+" 
+" package.preload['jetpack'] = function()
+"   return M
+" end
+" ========================================
