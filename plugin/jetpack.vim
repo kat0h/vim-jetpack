@@ -155,17 +155,17 @@ def! s:initialize_buffer()
   redraw
 enddef
 
-function! s:show_progress(title) abort
-  let buf = bufnr('JetpackStatus')
-  call deletebufline(buf, 1, '$')
-  let processed = len(filter(copy(s:packages), { _, val -> val.status[-1] =~# 'ed' }))
-  call setbufline(buf, 1, printf('%s (%d / %d)', a:title, processed, len(s:packages)))
-  call appendbufline(buf, '$', s:make_progressbar((0.0 + processed) / len(s:packages) * 100.0))
+def! s:show_progress(title: string)
+  var buf = bufnr('JetpackStatus')
+  deletebufline(buf, 1, '$')
+  var processed = len(filter(copy(s:packages), (_, val) => (val.status[-1] =~# 'ed')))
+  setbufline(buf, 1, printf('%s (%d / %d)', title, processed, len(s:packages)))
+  appendbufline(buf, '$', s:make_progressbar((0.0 + processed) / len(s:packages) * 100.0))
   for [pkg_name, pkg] in items(s:packages)
-    call appendbufline(buf, '$', printf('%s %s', pkg.status[-1], pkg_name))
+    appendbufline(buf, '$', printf('%s %s', pkg.status[-1], pkg_name))
   endfor
   redraw
-endfunction
+enddef
 
 function! s:show_result() abort
   let buf = bufnr('JetpackStatus')
