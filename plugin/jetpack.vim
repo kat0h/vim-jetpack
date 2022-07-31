@@ -64,9 +64,9 @@ def! s:list_files(path: string): list<string>
   return filter(glob(path..'/**/*', '', 1), (_, val) => (!isdirectory(val)))
 enddef
 
-function! s:check_ignorable(filename) abort
-  return filter(copy(g:jetpack_ignore_patterns), { _, val -> a:filename =~# glob2regpat(val) }) != []
-endfunction
+def! s:check_ignorable(filename: string): bool
+  return filter(copy(g:jetpack_ignore_patterns), (_, val) => (filename =~# glob2regpat(val))) != []
+enddef
 
 function! s:make_progressbar(n) abort
   return '[' . join(map(range(0, 100, 3), {_, v -> v < a:n ? '=' : ' '}), '') . ']'
