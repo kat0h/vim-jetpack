@@ -210,48 +210,53 @@ def! s:clean_plugins()
   endfor
 enddef
 
-function! s:make_download_cmd(pkg) abort
+" if !(has('unix') || has('win32')) s:make_download_cmd returns nil
+def! s:make_download_cmd(pkg: dict<any>): list<string>
   if g:jetpack_download_method ==# 'git'
-    if isdirectory(a:pkg.path)
-      return ['git', '-C', a:pkg.path, 'pull', '--rebase']
+    if isdirectory(pkg.path)
+      return ['git', '-C', pkg.path, 'pull', '--rebase']
     else
-      let cmd = ['git', 'clone']
-      if a:pkg.commit ==# 'HEAD'
-        call extend(cmd, ['--depth', '1', '--recursive'])
+      var cmd = ['git', 'clone']
+      if pkg.commit ==# 'HEAD'
+        extend(cmd, ['--depth', '1', '--recursive'])
       endif
-      if !empty(a:pkg.branch)
-        call extend(cmd, ['-b', a:pkg.branch])
+      if !empty(pkg.branch)
+        extend(cmd, ['-b', pkg.branch])
       endif
-      if !empty(a:pkg.tag)
-        call extend(cmd, ['-b', a:pkg.tag])
+      if !empty(pkg.tag)
+        extend(cmd, ['-b', pkg.tag])
       endif
-      call extend(cmd, [a:pkg.url, a:pkg.path])
+      extend(cmd, [pkg.url, pkg.path])
       return cmd
     endif
   else
-    if !empty(a:pkg.tag)
-      let label = a:pkg.tag
-    elseif !empty(a:pkg.branch)
-      let label = a:pkg.branch
+    var label = ""
+    if !empty(pkg.tag)
+      label = pkg.tag
+    elseif !empty(pkg.branch)
+      label = pkg.branch
     else
-      let label = a:pkg.commit
+      label = pkg.commit
     endif
+    var download_cmd = ""
     if g:jetpack_download_method ==# 'curl'
-      let download_cmd = 'curl -fsSL ' .  a:pkg.url . '/archive/' . label . '.tar.gz'
+      download_cmd = 'curl -fsSL ' ..  pkg.url .. '/archive/' .. label .. '.tar.gz'
     elseif g:jetpack_download_method ==# 'wget'
-      let download_cmd = 'wget -O - ' .  a:pkg.url . '/archive/' . label . '.tar.gz'
+      download_cmd = 'wget -O - ' ..  pkg.url .. '/archive/' .. label .. '.tar.gz'
     else
-      throw 'g:jetpack_download_method: ' . g:jetpack_download_method . ' is not a valid value'
+      throw 'g:jetpack_download_method: ' .. g:jetpack_download_method .. ' is not a valid value'
     endif
-    let extract_cmd = 'tar -zxf - -C ' . a:pkg.path . ' --strip-components 1'
-    call delete(a:pkg.path, 'rf')
+    var extract_cmd = 'tar -zxf - -C ' .. pkg.path .. ' --strip-components 1'
+    call delete(pkg.path, 'rf')
     if has('unix')
-      return ['sh', '-c', download_cmd . ' | ' . extract_cmd]
+      return ['sh', '-c', download_cmd .. ' | ' .. extract_cmd]
     elseif has('win32')
-      return ['cmd.exe', '/c' . download_cmd . ' | ' . extract_cmd]
+      return ['cmd.exe', '/c' .. download_cmd .. ' | ' .. extract_cmd]
+    else
+      return []
     endif
   endif
-endfunction
+enddef
 
 function! s:download_plugins() abort
   let jobs = []
