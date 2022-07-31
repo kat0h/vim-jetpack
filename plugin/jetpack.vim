@@ -551,17 +551,17 @@ function! jetpack#end() abort
   filetype plugin indent on
 endfunction
 
-function! jetpack#tap(name) abort
-  return has_key(s:packages, a:name) && isdirectory(jetpack#get(a:name).path) ? v:true : v:false
-endfunction
+def! jetpack#tap(name: string): bool
+  return has_key(s:packages, name) && isdirectory(jetpack#get(name).path) ? true : false
+enddef
 
-function! jetpack#names() abort
+def! jetpack#names(): list<string>
   return keys(s:packages)
-endfunction
+enddef
 
-function! jetpack#get(name) abort
-  return get(s:packages, a:name, {})
-endfunction
+def! jetpack#get(name: string): dict<any>
+  return get(s:packages, name, {})
+enddef
 
 " if !has('nvim') | finish | endif
 " lua<<========================================
