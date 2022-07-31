@@ -470,27 +470,27 @@ enddef
 
 " Original: https://github.com/junegunn/vim-plug/blob/e3001/plug.vim#L683-L693
 "  License: MIT, https://raw.githubusercontent.com/junegunn/vim-plug/e3001/LICENSE
-function! s:load_map(map, name, with_prefix, prefix)
-  execute 'packadd ' . a:name
-  let extra = ''
-  let code = getchar(0)
+def! s:load_map(map: string, name: string, with_prefix: bool, prefix: string)
+  execute 'packadd ' .. name
+  var extra = ''
+  var code = getchar(0)
   while (code != 0 && code != 27)
-    let extra .= nr2char(code)
-    let code = getchar(0)
+    extra ..= nr2char(code)
+    code = getchar(0)
   endwhile
-  if a:with_prefix
-    let prefix = v:count ? v:count : ''
-    let prefix .= '"'.v:register.a:prefix
+  if with_prefix
+    var prefix_ = v:count ? v:count : ''
+    prefix_ ..= '"' .. v:register .. prefix
     if mode(1) ==# 'no'
       if v:operator ==# 'c'
-        let prefix = "\<Esc>" . prefix
+        prefix_ = "\<Esc>" .. prefix_
       endif
-      let prefix .= v:operator
+      prefix_ ..= v:operator
     endif
     call feedkeys(prefix, 'n')
   endif
-  call feedkeys(substitute(a:map, '^<Plug>', "\<Plug>", 'i') . extra)
-endfunction
+  call feedkeys(substitute(map, '^<Plug>', "\<Plug>", 'i') .. extra)
+enddef
 
 def! s:load_cmd(a_cmd: string, a_name: string, ...a_args: list<string>)
   execute printf('delcommand %s', a_cmd)
