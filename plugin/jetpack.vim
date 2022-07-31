@@ -423,33 +423,32 @@ function! jetpack#sync()
   call s:postupdate_plugins()
 endfunction
 
-" TODO
-function! jetpack#add(plugin, ...) abort
-  let opts = a:0 > 0 ? a:1 : {}
-  let url = (a:plugin !~# ':' ? 'https://github.com/' : '') . a:plugin
-  let on = has_key(opts, 'on') ? (type(opts.on) ==# v:t_list ? opts.on : [opts.on]) : []
-  let on = extend(on, has_key(opts, 'for') ? (type(opts.for) ==# v:t_list ? opts.for : [opts.for]) : [])
-  let on = extend(on, has_key(opts, 'ft') ? (type(opts.ft) ==# v:t_list ? opts.ft : [opts.ft]) : [])
-  let on = extend(on, has_key(opts, 'cmd') ? (type(opts.cmd) ==# v:t_list ? opts.cmd : [opts.cmd]) : [])
-  let on = extend(on, has_key(opts, 'map') ? (type(opts.map) ==# v:t_list ? opts.map : [opts.map]) : [])
-  let on = extend(on, has_key(opts, 'event') ? (type(opts.event) ==# v:t_list ? opts.event : [opts.event]) : [])
-  let pkg  = {
-  \   'url': url,
-  \   'branch': get(opts, 'branch', ''),
-  \   'tag': get(opts, 'tag', ''),
-  \   'commit': get(opts, 'commit', 'HEAD'),
-  \   'rtp': get(opts, 'rtp', ''),
-  \   'do': get(opts, 'do', get(opts, 'run', '')),
-  \   'frozen': get(opts, 'frozen', v:false),
-  \   'dir': get(opts, 'dir', ''),
-  \   'on': on,
-  \   'opt': !empty(on) || get(opts, 'opt'),
-  \   'path': get(opts, 'dir', s:srcdir . '/' .  substitute(url, 'https\?://', '', '')),
-  \   'status': [s:status.pending],
-  \   'output': '',
-  \ }
-  let s:packages[get(opts, 'as', fnamemodify(a:plugin, ':t'))] = pkg
-endfunction
+def! jetpack#add(plugin: string, ...opt: list<dict<any>>)
+  var opts = opt->len() > 0 ? opt[0] : {}
+  var url = (plugin !~# ':' ? 'https://github.com/' : '') .. plugin
+  var on = has_key(opts, 'on') ? (type(opts.on) ==# v:t_list ? opts.on : [opts.on]) : []
+  on = extend(on, has_key(opts, 'for') ? (type(opts.for) ==# v:t_list ? opts.for : [opts.for]) : [])
+  on = extend(on, has_key(opts, 'ft') ? (type(opts.ft) ==# v:t_list ? opts.ft : [opts.ft]) : [])
+  on = extend(on, has_key(opts, 'cmd') ? (type(opts.cmd) ==# v:t_list ? opts.cmd : [opts.cmd]) : [])
+  on = extend(on, has_key(opts, 'map') ? (type(opts.map) ==# v:t_list ? opts.map : [opts.map]) : [])
+  on = extend(on, has_key(opts, 'event') ? (type(opts.event) ==# v:t_list ? opts.event : [opts.event]) : [])
+  var pkg  = {
+    url: url,
+    branch: get(opts, 'branch', ''),
+    tag: get(opts, 'tag', ''),
+    commit: get(opts, 'commit', 'HEAD'),
+    rtp: get(opts, 'rtp', ''),
+    do: get(opts, 'do', get(opts, 'run', '')),
+    frozen: get(opts, 'frozen', false),
+    dir: get(opts, 'dir', ''),
+    on: on,
+    opt: !empty(on) || get(opts, 'opt'),
+    path: get(opts, 'dir', s:srcdir .. '/' ..  substitute(url, 'https\?://', '', '')),
+    status: [s:status.pending],
+    output: '',
+  }
+  s:packages[get(opts, 'as', fnamemodify(plugin, ':t'))] = pkg
+enddef
 
 def! jetpack#begin(...a_home: list<string>)
   s:packages = {}
