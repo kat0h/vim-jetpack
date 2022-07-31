@@ -310,45 +310,45 @@ def! s:switch_plugins()
   endfor
 enddef
 
-function! s:merge_plugins() abort
+def! s:merge_plugins()
   for [pkg_name, pkg] in items(s:packages)
-    call add(pkg.status, s:status.pending)
+    add(pkg.status, s:status.pending)
   endfor
 
-  " If opt/do/dir option is enabled,
-  " it should be placed isolated directory.
-  let bundle = {}
-  let unbundle = {}
+  # If opt/do/dir option is enabled,
+  # it should be placed isolated directory.
+  var bundle = {}
+  var unbundle = {}
   for [pkg_name, pkg] in items(s:packages)
     if pkg.opt || !empty(pkg.do) || !empty(pkg.dir)
-      let unbundle[pkg_name] = pkg
+      unbundle[pkg_name] = pkg
     else
-      let bundle[pkg_name] = pkg
+      bundle[pkg_name] = pkg
     endif
   endfor
 
-  " Delete old directories
-  for dir in glob(s:optdir . '/*', '', 1)
-    let pkg_name = fnamemodify(dir, ':t')
+  # Delete old directories
+  for dir in glob(s:optdir .. '/*', false, 1)
+    var pkg_name = fnamemodify(dir, ':t')
     if !has_key(s:packages, pkg_name)
      \ || s:packages[pkg_name].output !~# 'Already up to date.'
-      call delete(dir, 'rf')
+      delete(dir, 'rf')
     endif
   endfor
 
-  " Merge plugins if possible.
-  let merged_files = []
+  # Merge plugins if possible.
+  var merged_files = []
   for [pkg_name, pkg] in items(bundle)
-    call s:show_progress('Merge Plugins')
-    let srcdir = pkg.path . '/' . pkg.rtp
-    let files = map(s:list_files(srcdir), {_, file -> file[len(srcdir):]})
-    let files = filter(files, { _, file -> !s:check_ignorable(file) })
-    let conflicted = v:false
+    s:show_progress('Merge Plugins')
+    srcdir = pkg.path .. '/' .. pkg.rtp
+    var files = map(s:list_files(srcdir), (_, file) => (file->slice(len(srcdir))))
+    files = filter(files, (_, file) => (!s:check_ignorable(file)))
+    var conflicted = false
     for file in files
       for merged_file in merged_files
-        let conflicted =
-          \ file =~# '\V' . escape(merged_file, '\') ||
-          \ merged_file =~# '\V' . escape(file, '\')
+        conflicted =
+          \ file =~# '\V' .. escape(merged_file, '\') ||
+          \ merged_file =~# '\V' .. escape(file, '\')
         if conflicted
           break
         endif
@@ -358,27 +358,27 @@ function! s:merge_plugins() abort
       endif
     endfor
     if conflicted
-      let unbundle[pkg_name] = pkg
+      unbundle[pkg_name] = pkg
     else
-      call extend(merged_files, files)
-      call s:copy_dir(srcdir, s:optdir . '/_')
-      call add(pkg.status, s:status.merged)
+      extend(merged_files, files)
+      s:copy_dir(srcdir, s:optdir .. '/_')
+      add(pkg.status, s:status.merged)
     endif
   endfor
 
-  " Copy plugins.
+  # Copy plugins.
   for [pkg_name, pkg] in items(unbundle)
-    call s:show_progress('Copy Plugins')
+    s:show_progress('Copy Plugins')
     if !empty(pkg.dir)
-      call add(pkg.status, s:status.skipped)
+      add(pkg.status, s:status.skipped)
     else
-      let srcdir = pkg.path . '/' . pkg.rtp
-      let destdir = s:optdir . '/' . pkg_name
-      call s:copy_dir(srcdir, destdir)
-      call add(pkg.status, s:status.copied)
+      srcdir  = pkg.path .. '/' .. pkg.rtp
+      var destdir = s:optdir .. '/' .. pkg_name
+      s:copy_dir(srcdir, destdir)
+      add(pkg.status, s:status.copied)
     endif
   endfor
-endfunction
+enddef
 
 function! s:postupdate_plugins() abort
   silent! packadd _
