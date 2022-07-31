@@ -380,21 +380,21 @@ def! s:merge_plugins()
   endfor
 enddef
 
-function! s:postupdate_plugins() abort
+def! s:postupdate_plugins()
   silent! packadd _
   for [pkg_name, pkg] in items(s:packages)
     if empty(pkg.do) || pkg.output =~# 'Already up to date.'
       continue
     endif
-    let pwd = getcwd()
+    var pwd = getcwd()
     if pkg.dir !=# ''
-      call chdir(pkg.path)
+      chdir(pkg.path)
     else
-      execute 'silent! packadd ' . pkg_name
-      call chdir(s:optdir . '/' . pkg_name)
+      execute 'silent! packadd ' .. pkg_name
+      chdir(s:optdir .. '/' .. pkg_name)
     endif
     if type(pkg.do) == v:t_func
-      call pkg.do()
+      pkg.do()
     endif
     if type(pkg.do) != v:t_string
       continue
@@ -402,14 +402,14 @@ function! s:postupdate_plugins() abort
     if pkg.do =~# '^:'
       execute pkg.do
     else
-      call system(pkg.do)
+      system(pkg.do)
     endif
-    call chdir(pwd)
+    chdir(pwd)
   endfor
-  for dir in glob(s:optdir . '/*/doc', '', 1)
-    execute 'silent! helptags ' . dir
+  for dir in glob(s:optdir .. '/*/doc', false, 1)
+    execute 'silent! helptags ' .. dir
   endfor
-endfunction
+enddef
 
 function! jetpack#sync() abort
   call s:initialize_buffer()
