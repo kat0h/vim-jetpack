@@ -1,4 +1,7 @@
-# vim-jetpack
+# vim9-jetpack
+
+**Vim9 script port of vim-jetpack**
+**only works in Vim9**
 
 The **lightning-fast** minimalist plugin manager for Vim/ Neovim. vim-jetpack is
 a jetpack for the most of vimmers. Unbelievably, it is faster than vimrc uses
