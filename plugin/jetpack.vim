@@ -121,26 +121,26 @@ def! s:jobstart(cmd: list<string>, Cb: func): job
   #endif
 enddef
 
-function! s:copy_dir(from, to) abort
-  call mkdir(a:to, 'p')
+def! s:copy_dir(from: string, to: string)
+  mkdir(to, 'p')
   if g:jetpack_copy_method !=# 'system'
-    for src in s:list_files(a:from)
-      let dest = substitute(src, '\V' . escape(a:from, '\'), escape(a:to, '\'), '')
-      call mkdir(fnamemodify(dest, ':p:h'), 'p')
+    for src in s:list_files(from)
+      var dest = substitute(src, '\V' .. escape(from, '\'), escape(to, '\'), '')
+      mkdir(fnamemodify(dest, ':p:h'), 'p')
       if g:jetpack_copy_method ==# 'copy'
-        call writefile(readfile(src, 'b'), dest, 'b')
-      elseif g:jetpack_copy_method ==# 'hardlink'
-        call v:lua.vim.loop.fs_link(src, dest)
-      elseif g:jetpack_copy_method ==# 'symlink'
-        call v:lua.vim.loop.fs_symlink(src, dest)
+        writefile(readfile(src, 'b'), dest, 'b')
+      # elseif g:jetpack_copy_method ==# 'hardlink'
+      #   call v:lua.vim.loop.fs_link(src, dest)
+      # elseif g:jetpack_copy_method ==# 'symlink'
+      #   call v:lua.vim.loop.fs_symlink(src, dest)
       endif
     endfor
   elseif has('unix')
-    call system(printf('cp -R %s/. %s', a:from, a:to))
+    system(printf('cp -R %s/. %s', from, to))
   elseif has('win32')
-    call system(printf('xcopy %s %s /E /Y', expand(a:from), expand(a:to)))
+    system(printf('xcopy %s %s /E /Y', expand(from), expand(to)))
   endif
-endfunction
+enddef
 
 function! s:initialize_buffer() abort
   execute 'silent! bdelete! ' . bufnr('JetpackStatus')
