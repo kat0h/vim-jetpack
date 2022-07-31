@@ -93,32 +93,33 @@ enddef
 
 " Original: https://github.com/lambdalisue/vital-Whisky/blob/90c71/autoload/vital/__vital__/System/Job/Vim.vim#L46
 "  License: https://github.com/lambdalisue/vital-Whisky/blob/90c71/LICENSE
-def! s:nvim_exit_cb(buf: list<string>, Cb: func, job: job, ...args: list<any>)
+" in Vim9 script, Vim cannot create funcref for functions starting with capital
+def! s:Nvim_exit_cb(buf: list<string>, Cb: func, job: job, ...args: list<any>)
   var ch = job_getchannel(job)
   while ch_status(ch) ==# 'open' | sleep 1ms | endwhile
   while ch_status(ch) ==# 'buffered' | sleep 1ms | endwhile
   call Cb(join(buf, "\n"))
 enddef
 
-function! s:jobstart(cmd, cb) abort
-  if has('nvim')
-    let buf = []
-    return jobstart(a:cmd, {
-    \   'on_stdout': { _, data -> extend(buf, data) },
-    \   'on_stderr': { _, data -> extend(buf, data) },
-    \   'on_exit': { -> a:cb(join(buf, "\n")) }
-    \ })
-  else
-    let buf = []
-    return job_start(a:cmd, {
-    \   'out_mode': 'raw',
-    \   'out_cb': { _, data -> extend(buf, split(data, "\n")) },
-    \   'err_mode': 'raw',
-    \   'err_cb': { _, data -> extend(buf, split(data, "\n")) },
-    \   'exit_cb': function('s:nvim_exit_cb', [buf, a:cb])
-    \ })
-  endif
-endfunction
+def! s:jobstart(cmd: list<string>, Cb: func): job
+  # if has('nvim')
+  #   let buf = []
+  #   return jobstart(a:cmd, {
+  #   \   'on_stdout': { _, data -> extend(buf, data) },
+  #   \   'on_stderr': { _, data -> extend(buf, data) },
+  #   \   'on_exit': { -> a:cb(join(buf, "\n")) }
+  #   \ })
+  # else
+  var buf: list<string> = []
+  return job_start(cmd, {
+  \   'out_mode': 'raw',
+  \   'out_cb': (_, data) => (extend(buf, split(data, "\n"))),
+  \   'err_mode': 'raw',
+  \   'err_cb': (_, data) => (extend(buf, split(data, "\n"))),
+  \   'exit_cb': function('s:Nvim_exit_cb', [buf, Cb])
+  \ })
+  #endif
+enddef
 
 function! s:copy_dir(from, to) abort
   call mkdir(a:to, 'p')
