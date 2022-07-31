@@ -93,12 +93,12 @@ enddef
 
 " Original: https://github.com/lambdalisue/vital-Whisky/blob/90c71/autoload/vital/__vital__/System/Job/Vim.vim#L46
 "  License: https://github.com/lambdalisue/vital-Whisky/blob/90c71/LICENSE
-function! s:nvim_exit_cb(buf, cb, job, ...) abort
-  let ch = job_getchannel(a:job)
+def! s:nvim_exit_cb(buf: list<string>, Cb: func, job: job, ...args: list<any>)
+  var ch = job_getchannel(job)
   while ch_status(ch) ==# 'open' | sleep 1ms | endwhile
   while ch_status(ch) ==# 'buffered' | sleep 1ms | endwhile
-  call a:cb(join(a:buf, "\n"))
-endfunction
+  call Cb(join(buf, "\n"))
+enddef
 
 function! s:jobstart(cmd, cb) abort
   if has('nvim')
