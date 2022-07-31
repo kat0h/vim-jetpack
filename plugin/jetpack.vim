@@ -262,36 +262,36 @@ def! s:make_download_cmd(pkg: dict<any>): list<string>
   endif
 enddef
 
-" TODO
-function! s:download_plugins() abort
-  let jobs = []
+def! s:download_plugins()
+  var jobs: list<job> = []
   for [pkg_name, pkg] in items(s:packages)
-    call add(pkg.status, s:status.pending)
+    add(pkg.status, s:status.pending)
   endfor
   for [pkg_name, pkg] in items(s:packages)
-    call s:show_progress('Install Plugins')
+    s:show_progress('Install Plugins')
+    var status_ = ''
     if isdirectory(pkg.path)
       if pkg.frozen
-        call add(pkg.status, s:status.skipped)
+        add(pkg.status, s:status.skipped)
         continue
       endif
-      call add(pkg.status, s:status.updating)
-      let status = s:status.updated
+      add(pkg.status, s:status.updating)
+      status_ = s:status.updated
     else
-      call add(pkg.status, s:status.installing)
-      let status = s:status.installed
+      add(pkg.status, s:status.installing)
+      status_ = s:status.installed
     endif
-    let cmd = s:make_download_cmd(pkg)
-    call mkdir(pkg.path, 'p')
-    let job = s:jobstart(cmd, function({status, pkg, output -> [
-    \   add(pkg.status, status),
-    \   execute("let pkg.output = output")
-    \ ]}, [status, pkg]))
-    call add(jobs, job)
-    call s:jobwait(jobs, g:jetpack_njobs)
+    var cmd = s:make_download_cmd(pkg)
+    mkdir(pkg.path, 'p')
+    var job = s:jobstart(cmd, function((a_status, a_pkg, a_output) => {
+      a_pkg.output = a_output
+      add(pkg.status, a_status)
+    }, [status, pkg]))
+    add(jobs, job)
+    s:jobwait(jobs, g:jetpack_njobs)
   endfor
-  call s:jobwait(jobs, 0)
-endfunction
+  s:jobwait(jobs, 0)
+enddef
 
 def! s:switch_plugins()
   if g:jetpack_download_method !=# 'git'
