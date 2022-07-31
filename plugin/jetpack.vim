@@ -493,18 +493,18 @@ function! s:load_map(map, name, with_prefix, prefix)
   call feedkeys(substitute(a:map, '^<Plug>', "\<Plug>", 'i') . extra)
 endfunction
 
-function! s:load_cmd(cmd, name, ...) abort
-  execute printf('delcommand %s', a:cmd)
-  execute printf('silent! packadd %s', a:name)
-  let args = a:0>0 ? join(a:000, ' ') : ''
+def! s:load_cmd(a_cmd: string, a_name: string, ...a_args: list<string>)
+  execute printf('delcommand %s', a_cmd)
+  execute printf('silent! packadd %s', a_name)
+  var args = a_args->len() > 0 ? join(a_args, ' ') : ''
   try
-    execute printf('%s %s', a:cmd, args)
+    execute printf('%s %s', a_cmd, args)
   catch /.*/
     echohl ErrorMsg
     echomsg v:exception
     echohl None
   endtry
-endfunction
+enddef
 
 def! jetpack#end()
   delcommand Jetpack
