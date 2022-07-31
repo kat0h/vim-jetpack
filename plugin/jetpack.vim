@@ -61,16 +61,16 @@ let s:status = {
 \ }
 
 def! s:list_files(path: string): list<string>
-  return filter(glob(path..'/**/*', '', 1), (_, val) => (!isdirectory(val)))
+  return filter(glob(path .. '/**/*', false, 1), (_, val) => (!isdirectory(val)))
 enddef
 
 def! s:check_ignorable(filename: string): bool
   return filter(copy(g:jetpack_ignore_patterns), (_, val) => (filename =~# glob2regpat(val))) != []
 enddef
 
-function! s:make_progressbar(n) abort
-  return '[' . join(map(range(0, 100, 3), {_, v -> v < a:n ? '=' : ' '}), '') . ']'
-endfunction
+def! s:make_progressbar(n: float): string
+  return '[' .. join(map(range(0, 100, 3), (_, v) => (v < n ? '=' : ' ')), '') .. ']'
+enddef
 
 function! s:jobstatus(job) abort
   if has('nvim')
@@ -158,7 +158,7 @@ function! s:show_progress(title) abort
   call deletebufline(buf, 1, '$')
   let processed = len(filter(copy(s:packages), { _, val -> val.status[-1] =~# 'ed' }))
   call setbufline(buf, 1, printf('%s (%d / %d)', a:title, processed, len(s:packages)))
-  call appendbufline(buf, '$', s:make_progressbar((0.0 + processed) / len(s:packages) * 100))
+  call appendbufline(buf, '$', s:make_progressbar((0.0 + processed) / len(s:packages) * 100.0))
   for [pkg_name, pkg] in items(s:packages)
     call appendbufline(buf, '$', printf('%s %s', pkg.status[-1], pkg_name))
   endfor
@@ -169,7 +169,7 @@ function! s:show_result() abort
   let buf = bufnr('JetpackStatus')
   call deletebufline(buf, 1, '$')
   call setbufline(buf, 1, 'Result')
-  call appendbufline(buf, '$', s:make_progressbar(100))
+  call appendbufline(buf, '$', s:make_progressbar(100.0))
   for [pkg_name, pkg] in items(s:packages)
     if index(pkg.status, s:status.installed) >= 0
       call appendbufline(buf, '$', printf('installed %s', pkg_name))
