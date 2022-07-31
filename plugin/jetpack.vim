@@ -559,9 +559,9 @@ function! jetpack#names() abort
   return keys(s:packages)
 endfunction
 
-def! jetpack#get(name: string): string
-  return get(s:packages, name, {})
-enddef
+function! jetpack#get(name) abort
+  return get(s:packages, a:name, {})
+endfunction
 
 " if !has('nvim') | finish | endif
 " lua<<========================================
