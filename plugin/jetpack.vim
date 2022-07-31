@@ -84,12 +84,12 @@ def! s:jobcount(jobs: list<job>): number
   return len(filter(copy(jobs), (_, val) => (s:jobstatus(val) ==# 'run')))
 enddef
 
-function! s:jobwait(jobs, njobs) abort
-  let running = s:jobcount(a:jobs)
-  while running > a:njobs
-    let running = s:jobcount(a:jobs)
+def! s:jobwait(jobs: list<job>, njobs: number)
+  var running = s:jobcount(jobs)
+  while running > njobs
+    running = s:jobcount(jobs)
   endwhile
-endfunction
+enddef
 
 " Original: https://github.com/lambdalisue/vital-Whisky/blob/90c71/autoload/vital/__vital__/System/Job/Vim.vim#L46
 "  License: https://github.com/lambdalisue/vital-Whisky/blob/90c71/LICENSE
