@@ -80,9 +80,9 @@ def! s:jobstatus(job: job): string
   return job_status(job)
 enddef
 
-function! s:jobcount(jobs) abort
-  return len(filter(copy(a:jobs), { _, val -> s:jobstatus(val) ==# 'run' }))
-endfunction
+def! s:jobcount(jobs: list<job>): number
+  return len(filter(copy(jobs), (_, val) => (s:jobstatus(val) ==# 'run')))
+enddef
 
 function! s:jobwait(jobs, njobs) abort
   let running = s:jobcount(a:jobs)
