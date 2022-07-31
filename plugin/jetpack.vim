@@ -114,12 +114,12 @@ def! s:jobstart(cmd: list<string>, Cb: func): job
   # else
   var buf: list<string> = []
   return job_start(cmd, {
-  \   'out_mode': 'raw',
-  \   'out_cb': (_, data) => (extend(buf, split(data, "\n"))),
-  \   'err_mode': 'raw',
-  \   'err_cb': (_, data) => (extend(buf, split(data, "\n"))),
-  \   'exit_cb': function('s:Nvim_exit_cb', [buf, Cb])
-  \ })
+    out_mode: 'raw',
+    out_cb: (_, data) => (extend(buf, split(data, "\n"))),
+    err_mode: 'raw',
+    err_cb: (_, data) => (extend(buf, split(data, "\n"))),
+    exit_cb: function('s:Nvim_exit_cb', [buf, Cb])
+  })
   #endif
 enddef
 
@@ -286,7 +286,7 @@ def! s:download_plugins()
     var job = s:jobstart(cmd, function((a_status, a_pkg, a_output) => {
       a_pkg.output = a_output
       add(pkg.status, a_status)
-    }, [status, pkg]))
+    }, [status_, pkg]))
     add(jobs, job)
     s:jobwait(jobs, g:jetpack_njobs)
   endfor
