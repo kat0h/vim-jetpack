@@ -187,28 +187,28 @@ def! s:show_result()
   redraw
 enddef
 
-function! s:clean_plugins() abort
+def! s:clean_plugins()
   if g:jetpack_download_method !=# 'git'
     return
   endif
   for [pkg_name, pkg] in items(s:packages)
     if isdirectory(pkg.path)
-      let branch = trim(system(printf('git -C %s rev-parse --abbrev-ref %s', pkg.path, pkg.commit)))
+      var branch = trim(system(printf('git -C %s rev-parse --abbrev-ref %s', pkg.path, pkg.commit)))
       if v:shell_error
-        call delete(pkg.path, 'rf')
+        delete(pkg.path, 'rf')
         continue
       endif
       if !empty(pkg.branch) && pkg.branch !=# branch
-        call delete(pkg.path, 'rf')
+        delete(pkg.path, 'rf')
         continue
       endif
       if !empty(pkg.tag) && pkg.tag !=# branch
-        call delete(pkg.path, 'rf')
+        delete(pkg.path, 'rf')
         continue
       endif
     endif
   endfor
-endfunction
+enddef
 
 function! s:make_download_cmd(pkg) abort
   if g:jetpack_download_method ==# 'git'
